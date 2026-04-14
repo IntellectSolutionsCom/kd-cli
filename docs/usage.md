@@ -517,7 +517,7 @@ kd /project list
 kd /project show FB
 
 # Create a project (leader defaults to the current user)
-kd /project create FB "Franco Bet"
+kd /project create FB "Feedback Board"
 
 # Enable time tracking
 kd /project configure FB --time-tracking true
