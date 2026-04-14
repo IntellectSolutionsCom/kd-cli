@@ -5,6 +5,7 @@ Command-line and Python tool for accessing and managing information that lives i
 - **Install**: `pipx install kd-cli` (or `pip install kd-cli`)
 - **PyPI**: https://pypi.org/project/kd-cli/
 - **Issues**: https://github.com/IntellectSolutionsCom/kd-cli/issues
+- **Release notes**: `kd /release-notes` (in-tool) or the [Changelog on PyPI](https://pypi.org/project/kd-cli/)
 
 Today kd speaks **YouTrack**. On the roadmap: **JIRA**, **GitHub Issues**, **GitLab**, and possibly **Obsidian**.
 
@@ -13,16 +14,20 @@ Today kd speaks **YouTrack**. On the roadmap: **JIRA**, **GitHub Issues**, **Git
 ```bash
 pipx install kd-cli
 
-# Scaffold a project-local config in the current directory.
+# Scaffold the global config (recommended on first install).
+kd init --global https://your-instance.youtrack.cloud
+
+# Or a project-local config in the current directory.
 kd init
 
 # Or set via environment.
 export KD_TOKEN=your_token
 export KD_CONNECTION=main
 
-# Check connection and version.
+# Check connection, version, and what shipped in this release.
 kd --version
-kd system info
+kd /system info
+kd /release-notes
 
 # Work with issues, articles, time, tags, primer.
 kd /issue list --project FB --query "#Unresolved"

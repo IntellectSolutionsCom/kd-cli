@@ -125,10 +125,15 @@ separate PATHs; mixing them causes confusing "command not found" errors.
 Identical on every platform.
 
 ```bash
-# Project-local config (in the current directory)
+# Global config (recommended on first install). Creates
+# ~/.config/kd/config.yaml with the URL pre-filled; the parent
+# directory is created as needed.
+kd init --global https://your-instance.youtrack.cloud
+
+# Or a project-local config in the current directory:
 kd init
 
-# Or set via environment (overrides workspace + global config)
+# Or set via environment (overrides workspace + global config):
 export KD_TOKEN=your_token
 export KD_CONNECTION=main
 ```
@@ -157,6 +162,17 @@ connections:
 pipx upgrade kd-cli
 # or, if installed via uv
 uv tool upgrade kd-cli
+```
+
+## What's new
+
+Every release ships a curated changelog; read it without leaving the tool:
+
+```bash
+kd /release-notes                    # latest version
+kd /release-notes 2.0.6              # a specific version
+kd /release-notes --since 2.0.6      # everything newer than 2.0.6
+kd /release-notes --all              # the full file
 ```
 
 ## Uninstall
@@ -210,4 +226,4 @@ pipx install kd-cli
 - https://docs.astral.sh/uv/ — uv documentation
 
 ---
-Updated: 2026-04-14
+Updated: 2026-04-14 (kd-cli 2.1.0)

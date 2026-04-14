@@ -12,7 +12,13 @@ pip install -e .
 
 ### Configure
 
-kd uses named connections to manage YouTrack instances. Each connection carries a URL, auth source, and optional defaults. Edit `~/.config/kd/config.yaml`:
+kd uses named connections to manage YouTrack instances. Each connection carries a URL, auth source, and optional defaults. Scaffold the global config with:
+
+```bash
+kd init --global https://your-instance.youtrack.cloud
+```
+
+This creates `~/.config/kd/config.yaml` (and its parent directory) with the URL pre-filled. Edit it to customize:
 
 ```yaml
 default_connection: main
@@ -149,6 +155,14 @@ Type the command name explicitly to run it — bare namespace invocations always
 kd --help                # root — all namespaces, global + output options
 kd /issue --help         # namespace — commands and sub-namespaces
 kd /issue list --help    # command — usage, options, examples
+```
+
+Three top-level commands are dedicated to discovery:
+
+```bash
+kd /primer show              # pinned notes + references for the current repo
+kd /system/config keys       # every configurable path with type + default
+kd /release-notes            # what changed in the installed version
 ```
 
 ## Output Formats
@@ -1089,5 +1103,5 @@ kd /system info    # verify URL, token, and connectivity
 ```
 
 ---
-Updated: 2026-04-10
+Updated: 2026-04-14 (kd-cli 2.1.0)
 
