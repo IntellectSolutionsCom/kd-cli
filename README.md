@@ -38,7 +38,13 @@ kd /search "router" --types issue,article
 kd /primer show
 ```
 
-See [Install guide](docs/install.md) for full macOS / Linux / Windows instructions, and the [Usage guide](docs/usage.md) for scenario-driven walkthroughs of every namespace.
+## Docs
+
+- **[Install](docs/install.md)** — macOS / Linux / Windows instructions.
+- **[Usage guide](docs/usage.md)** — scenario-driven walkthroughs of every namespace.
+- **[Configuration](docs/configuration.md)** — connections, auth sources, resolution chain, inspection and debugging.
+- **[Primer](docs/primer.md)** — the per-project knowledge capsule that orients humans and LLMs.
+- **[Cross-entity search](docs/search.md)** — `kd /search` across issues, articles, tags, projects, users.
 
 ## The primer
 

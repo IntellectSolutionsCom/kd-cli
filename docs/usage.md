@@ -115,7 +115,7 @@ aliases:
   standup: "/issue list --query 'for: me updated: Today'"
 ```
 
-All three sections are optional. They work in both local and global config, with local overriding global. See [How-To: Configuration](../how-to/002-configuration-how-to.md) for the full resolution chain, nested directory behavior, and collision rules.
+All three sections are optional. They work in both local and global config, with local overriding global. See [Configuration](configuration.md) for the full resolution chain, nested directory behavior, and collision rules.
 
 ### Verify
 
@@ -492,7 +492,7 @@ kd /time delete FB-42 199-88
 
 No confirmation prompt — pair with `/time list` for audit if needed.
 
-See [How-To: Time Tracking](../how-to/004-time-tracking-how-to.md) for practical workflows: end-of-week backfills, jq-based totals by type, migrating from external timesheets, and tips on UTC date boundaries.
+The time-tracking workflow above covers the essentials; end-of-week backfills and totals-by-type are straightforward combinations of the commands shown.
 
 ## User Management
 
@@ -894,7 +894,7 @@ kd /query assist "for: "
 
 Each suggestion surfaces `option`, `description`, optional `prefix` / `suffix` characters (e.g. `{` / `}` for project names with spaces), and the caret position the replacement should land at. Use it to discover valid tokens before baking a query into `/query create`, or pipe `--output json` into an editor-completion helper.
 
-See [How-To: Saved Queries](../how-to/005-saved-queries-how-to.md) for the build-then-save workflow, alias pairing, and the full error reference.
+Combine `/query create` with `/alias` (see the Command Aliases section below) to pin a short CLI name to the saved query's numeric ID.
 
 ## Cross-Entity Search
 
@@ -991,7 +991,7 @@ kd /primer show --output json   # learn what matters here
 
 The primer is separate from config — config is tool settings (URLs, defaults), primer is project knowledge. The file is created lazily on first `add`; read commands work without it. Unlike config, the primer is **local only** — there is no global primer at `~/.config/kd/`. Each project has its own primer or none at all.
 
-See [How-To: Primer](../how-to/009-primer-how-to.md) for the full workflow and troubleshooting.
+See [Primer](primer.md) for the full workflow and troubleshooting.
 
 ## Config and Primer History
 
@@ -1063,7 +1063,7 @@ kd /alias list          # list all aliases
 kd /alias show my-bugs  # show expansion for one alias
 ```
 
-See [How-To: Command Aliases](../how-to/001-command-aliases-how-to.md) for full details.
+Aliases live in the `aliases:` section of your config. See [Configuration](configuration.md) for how they compose with connection-level defaults.
 
 ## Command Synonyms
 
