@@ -4,6 +4,14 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.1.4] — 2026-04-15
+
+### Fixed
+- Connection `url` with a trailing slash no longer produces opaque `JSONDecodeError`. URLs are now normalized on load (`https://host/` → `https://host`), and the HTTP layer guards against non-JSON 2xx responses — a misconfigured URL that lands on YouTrack's HTML web UI now raises a clear `APIError` naming the URL and content type (KDCLI-67).
+
+### Documentation
+- `docs/how-to/012-install-how-to.md` now walks through obtaining a YouTrack API token (Profile → Account Security → New token) and clarifies that the `token_env` name is user-configurable. The configuration how-to cross-links to it (KDCLI-68).
+
 ## [2.1.3] — 2026-04-15
 
 ### Fixed
