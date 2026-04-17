@@ -4,6 +4,16 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.1.5] — 2026-04-17
+
+Milestone 005 — CLI friction audit, session S1. Four first-time-user surface fixes on the `--help` / `--output` axis.
+
+### Fixed
+- `--help`, `--reference`, and per-command help now render the `--output` choices list exactly once. The literal help text carries the list and the default (`Output format: table|json|yaml|md (default: table)`); four renderer sites that previously auto-appended `(table, json, yaml, md)` a second time stopped doing so (KDCLI-73).
+- `kd` no longer flips the default output format to JSON when stdout is a pipe. `table` is the unconditional default across TTY, pipes, and subprocess contexts, per [ADR-006](../../docs/design/ADR-006-tty-detection-config-first.md). Consumers wanting JSON or YAML pass `-o json` / `-o yaml` explicitly (KDCLI-74).
+- `kd /primer show` on an empty primer now prints a populate hint in `table` and `md` output, instead of rendering zero bytes. JSON and YAML continue to return the canonical empty container `{"notes": [], "articles": []}` (KDCLI-76).
+- `kd /primer/note add`, `kd /primer/article add`, and their sibling `remove` / `update` commands accept `--project/-p` as a workspace assertion. A match against the active connection's `default_project` is a silent no-op; a mismatch raises a `ValidationError` naming both the asserted and resolved keys so an agent running from the wrong workspace fails loud instead of silently writing to the wrong primer (KDCLI-70).
+
 ## [2.1.4] — 2026-04-15
 
 ### Fixed
