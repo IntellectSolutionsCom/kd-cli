@@ -4,6 +4,20 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.1.6] — 2026-04-17
+
+Milestone 005 — CLI friction audit, session S2. Two raise sites enriched so users land on the right file and the right fix.
+
+### Fixed
+- Missing-token errors now name the connection and URL, surface a copy-pasteable `token_cmd:` example, and cite the config file that declared `token_env:`. Previously the user saw only the env-var name — in a multi-connection setup, guesswork about which connection failed and which file to edit (KDCLI-72).
+- Config merge-validation errors cite the contributing file for each offending locus. A bad local override now names the local file per key; a bad global-only entry names the global file. `kd /system/config set` leaf-coercion errors name the target config path. Origin data was already tracked via `ConnectionOrigin` for `config list`; this release threads it into the user-visible error string too (KDCLI-69).
+
+### Changed
+- The `.suggestion` attribute now lives on the `KdError` base instead of being declared per-subclass. `_print_error` renders `Hint:` for any `KdError` with a suggestion — `AuthError` and `ValidationError` now carry suggestions alongside `APIError` and `ConfigError`. Internal plumbing; no CLI surface change.
+
+### Documentation
+- Replace `vod` with `support` in help-text examples, code docstrings, current-behavior design docs, specs, how-tos, and test fixtures. Historical records (session docs, CHANGELOG, shipped milestone close-outs) keep their `vod` references intact so the audit trail stays honest (KDCLI-30).
+
 ## [2.1.5] — 2026-04-17
 
 Milestone 005 — CLI friction audit, session S1. Four first-time-user surface fixes on the `--help` / `--output` axis.
