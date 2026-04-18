@@ -4,6 +4,11 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.2.2] — 2026-04-18
+
+### Fixed
+- `kd /issue update ID --field "NAME="` now clears optional custom fields by sending `value: null` to YouTrack. Required fields reject empty values with a clear client-side error instead of the generic "invalid value" bundle message (KDCLI-81).
+
 ## [2.2.1] — 2026-04-18
 
 ### Added
