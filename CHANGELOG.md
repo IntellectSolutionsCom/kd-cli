@@ -4,6 +4,14 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.3.0] — 2026-04-18
+
+### Added
+- `/article push --create-tags` explicitly creates missing tags before pushing and attaching them, for scripted flows that own their tag namespace (KDCLI-85).
+
+### Fixed
+- `/article push --tag` missing-tag failures now print actionable recovery commands instead of a bare not-found / close-match message (KDCLI-85).
+
 ## [2.2.2] — 2026-04-18
 
 ### Fixed
