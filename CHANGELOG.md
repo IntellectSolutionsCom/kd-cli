@@ -4,6 +4,11 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.1.7] — 2026-04-18
+
+### Internal
+- Config get/set/which surface now lives symmetrically in the SDK, not split across the CLI module. Pure refactor — no command output, flag, or error-message change (KDCLI-63).
+
 ## [2.1.6] — 2026-04-17
 
 Milestone 005 — CLI friction audit, session S2. Two raise sites enriched so users land on the right file and the right fix.
