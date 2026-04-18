@@ -4,6 +4,11 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.2.1] — 2026-04-18
+
+### Added
+- `kd --guide` / `-G` prints an embedded operating guide covering kd's product boundary, primer workflow, cost classes, and YouTrack gotchas — the doctrine complement to the syntax-focused `kd --reference`. Runs without a connection or working config, so it's safe in fresh or broken-config environments (KDCLI-94).
+
 ## [2.2.0] — 2026-04-18
 
 Milestone 006 — tag discovery and taxonomy hygiene v1. Eight sequenced sessions that turn tags into a load-bearing cross-entity discovery primitive: `/issue` tag parity with `/article`, multi-tag intersection on `/tag issues`, the `/tag entities` cross-kind verb, `/tag list --prefix|--namespace` taxonomy introspection, and workspace-pinned tags on the primer consumed as an implicit OR scope.
