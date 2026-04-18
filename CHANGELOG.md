@@ -4,6 +4,12 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.4.0] — 2026-04-19
+
+### Added
+- `kd /primer init [TEMPLATE]` scaffolds `.kd/primer.yaml` from a packaged template so fresh workspaces don't start from a blank page. The default `hitl` template ships placeholder prose in three slots (scope guard, session workflow, canonical reference); the banner and example-shape comments are preserved verbatim. Refuses if a primer already exists; unknown template names reject with the available-templates list (KDCLI-97).
+- `--confirm` flag on `/project delete`, `/tag delete`, and `/user delete` — these three deletes bypass YouTrack's Deleted Items and require a backup restore to undo, so kd now rejects them without `--confirm` and prints the literal retry command in the error. The flag is hidden from `kd --reference` but visible in per-command `--help` (KDCLI-96).
+
 ## [2.3.0] — 2026-04-18
 
 ### Added
