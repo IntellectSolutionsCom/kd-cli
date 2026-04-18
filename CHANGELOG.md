@@ -4,6 +4,28 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.2.0] — 2026-04-18
+
+Milestone 006 — tag discovery and taxonomy hygiene v1. Eight sequenced sessions that turn tags into a load-bearing cross-entity discovery primitive: `/issue` tag parity with `/article`, multi-tag intersection on `/tag issues`, the `/tag entities` cross-kind verb, `/tag list --prefix|--namespace` taxonomy introspection, and workspace-pinned tags on the primer consumed as an implicit OR scope.
+
+### Added
+- `/issue list --with-tags` opts in to a tag-aware field set; rows include a comma-joined `tags` column (cheap default path is unchanged). The flag is the explicit opt-in for tag-aware listings — `-f`/`--fields` stays a pure output filter (KDCLI-83, M006 S3).
+- `/issue show` always renders a `tags` row (parity with `/article show`) and an `updated` row alongside `created` (timestamp normalisation handled automatically) (KDCLI-83, M006 S3).
+- `/tag issues TAG --tag T2 [--tag T3] [--project P]` accepts repeatable `--tag` with AND semantics, mirroring `/tag articles`. Single-tag without `--project` keeps the fast `GET /api/tags/{id}/issues` endpoint; multi-tag (or any use of `--project`) composes a YouTrack query via `youtrack_query_literal()` and uses `/issues?query=...`. Same-field clauses are joined with the explicit `and` keyword because YouTrack DSL combines repeated same-field clauses as OR by default (KDCLI-88, M006 S4).
+- `/tag entities TAG [--tag T2 ...] [--project P] [--kind issue|article|all] [--limit-issues N] [--limit-articles N] [--limit N]` — unified cross-kind tag discovery. Returns a flat `results` list plus a `meta` dict reporting per-kind completeness (`scanned`, `complete`, `truncated`, `count`, `limit_per_kind`, optional `error`). Default sort is kind asc (articles first), updated desc within kind. Single-kind failure yields exit 0 with `meta.<kind>.error` populated — structured consumers must read `meta` (exit 0 does not mean every kind succeeded). `--limit` is the symmetric per-kind default; `--limit-issues` and `--limit-articles` override per kind (specific over general) (KDCLI-89, M006 S5).
+- `/tag list --prefix P` / `/tag list --namespace N` filter tags by name prefix via the server's substring `?query=` plus a client-side `startswith` post-filter. Pagination walks until `--limit` matches are collected or the source is exhausted; a hard cap at `10 × --limit` server pages emits a one-line stderr warning and exits 0 with whatever was found. `--namespace N` is a convenience shorthand that appends the trailing colon; the two flags are mutually exclusive. Output shape is unchanged — plain list of `Tag` rows (KDCLI-90, M006 S6).
+- `/primer/tag list|add|remove` — workspace-pinned tag list in `.kd/primer.yaml`. `/primer show` renders a `tags:` block between notes and articles. `/tag entities --primer-scope` (mutually exclusive with positional `TAG` and `--tag`) uses the pinned list as an implicit OR scope; empty primer raises a `ValidationError` that names `/primer/tag add`. Every `/primer*` command accepts `--project` as a workspace assertion (KDCLI-84 folded in). Output envelope gains a structured `warnings: [{code, message, context}]` field; table and markdown output append `warning [<code>]: <message>` after rows, JSON and YAML pass the field through (KDCLI-92, M006 S7).
+
+### Fixed
+- `/issue show` and `/issue list --with-tags` now display tags. Tag state on issues was previously write-only from the CLI — operators had to reverse-lookup via `/tag issues TAGNAME` for each candidate (KDCLI-83, M006 S3).
+
+### Documentation
+- `docs/specs/001-youtrack-api-reference.md` gains alias equivalence (`tag: X` / `#X` / `tagged as:` and negation forms) and the full brace-escape matrix for tag predicates in the query DSL (M006 S8).
+- New `docs/how-to/015-cross-entity-tag-discovery-how-to.md` — worked examples for `/tag entities`, `meta` interpretation, per-kind pagination, partial-failure handling, and `--primer-scope` (M006 S5 / S8).
+
+### Internal
+- `TagOperations.entities/issues/articles` gained a `match: Literal["all", "any"] = "all"` parameter. `"any"` joins multi-tag issue queries with the explicit `or` keyword and switches the article scan from `issubset` to `not isdisjoint`. Defaults preserve every existing caller's semantics — no user-visible API change (KDCLI-92, M006 S7).
+
 ## [2.1.7] — 2026-04-18
 
 ### Internal
