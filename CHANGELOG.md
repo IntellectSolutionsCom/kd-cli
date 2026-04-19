@@ -4,6 +4,14 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.5.2] — 2026-04-19
+
+### Fixed
+- `kd /article push` one-way migrations no longer force `git rm -f`. Before: push always rewrote the local markdown file with a `kd-meta` marker on success, which left the file "locally modified" and made `git rm` refuse without `-f` on migrations that delete the local copy after push. Now: pass `--no-marker-write` to skip the local rewrite. The upstream article is still created or updated, `--tag` values are still applied, and the outgoing server payload still carries a marker with the slug — so scan-by-slug resolves the article on any later push even without the local file. Default behavior is unchanged; the flag is opt-in (KDCLI-110).
+
+### Added
+- `kd /article push` structured output (`-o yaml` / `-o json`) now carries two sibling keys on every push: `marker_written` (`false` for dry-runs and `--no-marker-write` pushes, `true` on the default path after the local rewrite) and `parent` (readable id of the target article's upstream parent, or `null` for root articles). Scripts can assert local-file state and the article's place in the tree from the push response directly (KDCLI-110).
+
 ## [2.5.1] — 2026-04-19
 
 ### Fixed
