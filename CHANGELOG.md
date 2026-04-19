@@ -4,6 +4,14 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.5.1] — 2026-04-19
+
+### Fixed
+- `kd /issue create --field NAME=VALUE` and `kd /issue update --field NAME=VALUE` now accept **string custom fields**. Before: `kd /issue update VIS-21 --field Milestone=M039` rejected with `Error: Unsupported field type 'SimpleProjectCustomField' for field 'Milestone'`, blocking workflows that track freeform per-issue metadata such as a rolling milestone string. `--field "NAME="` clears an optional string field just like it clears enum/user fields today; required string fields reject empty values with the same client-side error shipped in 2.2.2. Whitespace inside the value is preserved — `--field "Milestone=  M 039  "` sends `  M 039  ` verbatim. Only the field **name** is trimmed (KDCLI-106).
+
+### Changed
+- Unsupported custom-field errors now name both identifiers and the cause. Before: `Error: Unsupported field type 'X' for field 'Y'`. Now: `Error: Unsupported custom field type 'X' with subtype 'Y' for field 'Z'. kd does not know how to build a safe value payload for this YouTrack field family.` Applies to YouTrack text fields, multi-arity enum/user variants, and integer/float/date simple-field subtypes — paste the message into a bug report and the two type identifiers are already there (KDCLI-106).
+
 ## [2.5.0] — 2026-04-19
 
 Dogfooding friction fixes across tag and article workflows, plus self-describing `/system info` output for bug reports. Focus of this release: the taxonomy and article-create loops now behave the way field use expects, and a paste of `kd /system info -o yaml` replaces hand-typed version footers.
