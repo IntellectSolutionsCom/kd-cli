@@ -4,6 +4,21 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.5.0] — 2026-04-19
+
+Dogfooding friction fixes across tag and article workflows, plus self-describing `/system info` output for bug reports. Focus of this release: the taxonomy and article-create loops now behave the way field use expects, and a paste of `kd /system info -o yaml` replaces hand-typed version footers.
+
+### Added
+- `kd /system info` now carries three additional fields alongside the existing connection identity: `kd_version` (matches `kd --version`), `python_version`, and `platform`. Paste `kd /system info -o yaml` into a bug report to tie an observed behavior to a specific build without hand-typing the version. The four existing keys (`url`, `user`, `name`, `email`) are unchanged; redact `url` / `email` before sharing externally (KDCLI-104).
+
+### Changed
+- `kd /tag create TAG_NAME` is now idempotent and returns a `{ok, action, tag}` envelope with `action` being either `create` or `exists`. Re-running create on an already-visible tag is safe and no longer surfaces `Tag.name-is-invalid`. **Breaking vs. the prior flat tag object** — downstream scripts and SDK consumers that parsed the top-level tag fields must now read from the nested `tag:` block. Python SDK: the `create(...)` method on the tag operations client returns a `TagCreateResult(action, tag)` object; unpack `.tag` to reach the tag fields (KDCLI-105).
+
+### Fixed
+- `kd /tag create TAG_NAME` against an already-existing tag no longer emits the raw upstream `Tag.name-is-invalid` error. When the POST still fails (genuinely unacceptable name, or a tag hidden by sharing/visibility that the caller cannot see), the error names both plausible causes without inventing a character grammar (KDCLI-105).
+- `kd /tag entities` structured output (`-o yaml` / `-o json`, including `--primer-scope`) now populates the `tags` field on issue rows, bringing the verb to parity with `/issue show --rich` and `/issue list --with-tags`. Before: structured issue rows reported `tags: []` even when they matched via a pinned tag, forcing a second `/issue show` round-trip to see which tag caused the match. Table output is unchanged and still omits the tag column by design (KDCLI-100).
+- `kd /article create --tag TAG` structured output now returns the post-tag article state: the response `tags` field matches a subsequent `kd /article show` on the returned id. Missing tags are rejected **before** the article is created, so a typo in `--tag` no longer leaves an untagged article behind; the error names `kd /tag create` for the missing tag, retrying `kd /article create` without the tag, or applying the tag after create via `kd /tag add ARTICLE-ID TAG`. Before: the CLI rendered `tags: ''` even when tags were attached upstream (KDCLI-101).
+
 ## [2.4.1] — 2026-04-19
 
 ### Fixed
