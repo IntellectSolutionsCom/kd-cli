@@ -4,6 +4,11 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.4.1] — 2026-04-19
+
+### Fixed
+- Concurrent `kd /primer/note`, `/primer/tag`, and `/primer/article` commands against the same `.kd/primer.yaml` no longer silently lose writes. Before: running three `kd /primer/note update` calls in parallel (common in agent-driven sessions) all reported `ok: true` but only one update survived. Now: each command runs inside an advisory file lock on a sidecar `.kd/primer.yaml.lock`, so concurrent kd processes queue rather than clobber each other and every successful call is reflected in the final file. Concurrent acquirers wait up to 30 s before erroring with `Another kd process is writing to …; retry in a moment`; the error includes the path of the sidecar lockfile for stale-holder recovery. POSIX only; first lock attempt on Windows raises a clear error pointing at sequential invocation (KDCLI-98).
+
 ## [2.4.0] — 2026-04-19
 
 ### Added
