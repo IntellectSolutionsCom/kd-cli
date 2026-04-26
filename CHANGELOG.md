@@ -4,6 +4,73 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.0] — 2026-04-27
+
+### Added
+- `kd --sdlc` prints the portable SDLC doctrine from packaged resources;
+  runs config-free and client-free, so an installed kd-cli can surface the
+  method in any workspace without a tracker connection or repo checkout.
+- `kd /cache refresh` can hydrate the local cache from primer scope, single
+  issues, single articles, saved queries, milestone values, and epic children.
+  Refresh writes disposable upstream-mirror files under
+  `.kd/cache/connections/<slug>/`, records a per-scope `scope.yaml`, and returns
+  structured hydrated/failed reports for partial failures.
+- `kd /cache status` reports local cache health across all connection scopes,
+  including per-kind counts, latest and oldest fetch timestamps, and stale-entry
+  counts. `--scope NAME` focuses one connection; `--stale-after-days N`
+  changes the stale threshold for that run.
+- `kd /cache search TEXT` searches hydrated cache content locally, without a
+  tracker token. Use `--scope`, `--kind article|issue|query`, and `--limit` to
+  narrow the scan.
+- `kd /cache clear` clears only the active connection scope by default and
+  needs no live tracker token. `--all` wipes the whole `.kd/cache/` tree,
+  including legacy flat cache directories.
+- `kd /issue touched --git-range <A>..<B>` derives ticket IDs from local git
+  commit subjects for offline reconciliation. It never reads the tracker and
+  reports unmatched commits in structured output.
+- `kd /article update` accepts `--append TEXT_OR_FILE` and
+  `--prepend TEXT_OR_FILE` for one-call article body splices. Both forms
+  preserve an existing `kd-meta` marker at content position 0, accept inline
+  text, `@file`, `@-`, and `-`, and are mutually exclusive with `--content` and
+  with each other.
+- `kd /article push` uses cache sidecars for drift detection when they exist.
+  Baseline priority is `cache > legacy_marker > none`; structured output
+  reports `conflict_check: cache` when the cache drives the check. Malformed
+  sidecars refuse before any upstream write, and successful pushes refresh the
+  active article cache sidecar for the next run.
+
+### Changed
+- Cache files now live under per-connection scopes at
+  `.kd/cache/connections/<slug>/` so workspaces that use multiple trackers do
+  not collide on the same readable issue, article, or query names. New refreshes
+  do not write the old flat `.kd/cache/articles|issues|queries` layout.
+- `kd /article push` writes the local `kd-meta` marker only on first creation,
+  first resolution, or stale-id repair. New markers contain only identity
+  fields (`slug` and `upstream-id`); legacy `upstream-updated` lines are still
+  accepted as a fallback drift baseline but are no longer emitted.
+- `kd /article push` reports the update-path conflict policy through
+  `conflict_check` in structured output. Identity-only files without a cache
+  sidecar report `skipped_no_baseline` and proceed under the explicit trust-new
+  policy; `--force` reports `skipped_force`.
+- `kd /article pull` is now a passthrough read of the server article body. It
+  no longer injects, refreshes, or canonicalizes marker fields.
+- Upstream mutation commands are covered by a write-gating catalog test: they
+  require a live tracker client before command execution begins, so cached
+  content never substitutes for a mutation target.
+
+### Documentation
+- The article-push how-to, user guide, operating guide, and command reference
+  now describe marker identity, cache-backed drift detection, cache health,
+  cache search, offline reconciliation, write-gating, and article
+  append/prepend behavior in current-tense operator guidance.
+- The portable SDLC doctrine (`KDCLI-A-18`) is refined against the shipped
+  M008 surface: legacy flat cache content is named neutrally rather than by
+  internal milestone label; marker-bridged files are described as one source
+  of truth in two forms; the two-commit pattern is recommended for sessions
+  that mix code and docs and explicitly optional for docs-only or hygiene-only
+  work; a new "What's project-specific?" section names the SDLC profile as
+  the configurable-policy extension point.
+
 ## [2.5.2] — 2026-04-19
 
 ### Fixed
