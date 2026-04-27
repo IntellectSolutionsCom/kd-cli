@@ -4,6 +4,17 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.1] — 2026-04-27
+
+### Documentation
+- `kd --sdlc` now opens with a reader-first mental model and vocabulary before
+  the layer, cache, marker-bridged, and closeout rules. The packaged doctrine
+  keeps the same tool contracts while making the SDLC easier for first-time
+  human readers and LLM agents to explain.
+- `kd --sdlc` now defines daybooks, surfaces the session starter checklist
+  near the front, and clarifies the planning path from ideation through setup
+  into the repeatable session loop.
+
 ## [2.6.0] — 2026-04-27
 
 ### Added
