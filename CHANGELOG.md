@@ -4,6 +4,76 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.2] — 2026-04-28
+
+### Added
+- `--quiet` (long form only; no `-q` alias) suppresses the detail block on
+  mutation commands that use the new write-output contract, leaving stdout as
+  exactly the single-line ack `ok: <ID> <action> [key=value ...]`. Designed
+  for shell loops that extract the new entity ID via
+  `id=$(kd /issue create "..." --quiet | tail -1 | awk '{print $2}')`.
+  `--quiet` is silently ignored on read commands and on structured modes
+  (`-o yaml` / `-o json`).
+- `docs/design/write-output-contract.md` documents the mutation envelope
+  shape, action vocabulary, tail-line grammar, `--quiet` semantics, the
+  multi-target `applied[]` shape, and the `/article push` dry-run-create
+  carve-out.
+- `docs/how-to/021-bulk-write-loops-how-to.md` shows the canonical
+  `tail -1 | awk` extraction recipe for bulk migration scripts, plus
+  recipes for the `/article push` slug capture and the
+  `attachments[]`/`applied[]` shape on attachment-add commands.
+- `attachments[]` plus `applied[]` shape on `/issue/attachment add` and
+  `/article/attachment add`. The scalar `attachments` list produces the
+  tail-line token (`attachments=file1.md,file2.md`) for shell loops; the
+  structured `applied: [{name, size, id}, ...]` list carries per-file detail
+  for machine consumers. The shape is consistent for both single-file and
+  multi-file calls.
+
+### Changed
+- Every upstream-mutation command now returns a parseable single-line ack
+  contract as the last line of stdout in text/md modes, except `/tag add`
+  (reshaped with a multi-tag `applied[]` envelope in a separate session).
+  The contracted set: `/issue` (`create`, `update`, `delete`, `assign`,
+  `unassign`, `move`); `/issue/comment add`, `/issue/link add`,
+  `/issue/attachment add`, `/issue/attachment delete`; `/article` (`create`,
+  `update`, `delete`, `move`, `push`); `/article/comment add`,
+  `/article/attachment add`, `/article/attachment delete`; `/tag`
+  (`create`, `delete`, `rename`, `remove`); `/project` (`create`,
+  `configure`, `delete`); `/user` (`create`, `delete`); `/query`
+  (`create`, `update`, `delete`); `/time` (`log`, `update`, `delete`).
+  Detail bodies that used to echo full entity state are replaced with a
+  narrowed envelope (`{ok, action, id, ...}`) — run `kd /<entity> show
+  ID` for the canonical post-write read. Update commands (`/issue update`,
+  `/article update`, `/query update`, `/time update`) carry `changed:
+  [...]` listing every key the call mutated.
+- Action vocabulary expanded with `linked` (`/issue/link add`), `renamed`
+  (`/tag rename`), `configured` (`/project configure`), and `noop` (the
+  explicit "nothing happened" verb — today: `/tag create` for an
+  already-visible tag).
+- `/tag rename` envelope `id` is the **new name** (scripts that follow the
+  rename refer to the tag by its new identity); the previous name is
+  preserved in `old_name=`.
+- `/project create` envelope `id` is the project **short_name**
+  (operator-typed identifier); the internal numeric ID is dropped.
+  `/user create` envelope `id` is the **login**; the internal numeric ID
+  is dropped.
+- `/article push` now maps SDK `PushResult.action` (`"create"` /
+  `"update"`) to contract past-tense (`"created"` / `"updated"`) at the
+  CLI boundary. Dry-run create has no upstream article yet — `id` is
+  `null` in the envelope and the tail line is **not ID-extractable** via
+  `tail -1 | awk '{print $2}'`. Drop `--dry-run` before relying on tail
+  extraction. Production-create and production-update branches both
+  carry the article ID as expected.
+- Destructive deletes (`/tag delete`, `/project delete`, `/user delete`)
+  retain their `--confirm` safety gate. The gate fires before any mutation
+  envelope is rendered; the contract normalizes the success-path envelope
+  only.
+- Warning lines on `/primer/tag add` (and any other command attaching a
+  `warnings` envelope) render to **stderr** in text/md modes so stdout stays
+  parseable for `tail -1 | awk` recipes. Structured modes (`-o yaml`,
+  `-o json`) leave `warnings` in the payload exactly as before — no
+  double-emission to stderr.
+
 ## [2.6.1] — 2026-04-27
 
 ### Documentation
