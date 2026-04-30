@@ -4,6 +4,31 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.5] — 2026-04-30
+
+This release closes M011 by adding empty-project bootstrap support to
+`/issue create`. Together with M011 S1 + S2 (the Windows UTF-8 audit in
+2.6.4), the milestone delivers a kd-only path from a fresh primer to
+the first ticket on a brand-new project on Windows: file IO, stdin,
+and field-resolution all work without falling back to the web UI.
+
+### Fixed
+- `/issue create` semantic bootstrap now succeeds on fresh
+  (zero-issue, contributor-token) projects: when both schema-discovery
+  paths return empty, kd synthesizes a best-effort payload for
+  `--type`, `--priority`, and `--state` using the post-discovery
+  `$type` mapping and lets YouTrack accept or reject. Pre-fix, kd
+  bailed before the API call with `Error: No custom fields discovered
+  for project '<id>'`, telling the operator to fall back to the web UI
+  for the very first issue — a kd-only bootstrap workflow could not
+  populate Type / Priority / State on a brand-new project.
+  `--field NAME=VALUE` still raises with the improved hint (kd cannot
+  guess server-side `$type` for arbitrary fields). The hint gains a
+  third bullet pointing at the simplest workaround: `Or omit --type /
+  --priority / --state to create a minimal first issue, then update it
+  via `/issue update``. See KDCLI-A-22 for the empty-project bootstrap
+  detail (KDCLI-171).
+
 ## [2.6.4] — 2026-04-30
 
 This release closes the Windows UTF-8 audit started in 2.6.3. The
