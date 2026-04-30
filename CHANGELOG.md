@@ -4,6 +4,34 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.4] — 2026-04-30
+
+This release closes the Windows UTF-8 audit started in 2.6.3. The
+stream-encoding side (stdout/stderr) shipped earlier; 2.6.4 closes the
+file-IO and stdin sides so primer notes, `--content @file`, and heredoc
+or piped input round-trip non-cp1252 characters cleanly.
+
+### Fixed
+- File reads and writes on Windows are now explicit UTF-8 at every
+  kd-owned text-IO call site (primer, config, history/diff snapshots,
+  `--description @file` / `--content @file` content). The headline
+  reproducer was `kd /primer show` raising `'charmap' codec can't
+  decode byte 0x9d` whenever `.kd/primer.yaml` contained any non-cp1252
+  byte (em-dash, arrow, right double quotation mark) — a single primer
+  note authored on macOS/Linux was enough to read-block every
+  downstream Windows session (KDCLI-170).
+- Stdin on Windows is now forced to UTF-8 with strict error handling,
+  so heredocs and pipes carrying non-ASCII content (em-dash, arrow,
+  right double quotation mark) into `kd /primer/note update -`,
+  `kd /article create --content @-`, `--description -`, or any other
+  stdin-consuming command no longer get cp1252-mojibaked at the input
+  layer before being persisted. Invalid UTF-8 bytes on stdin (and
+  non-UTF-8 `@file` content) now surface as a clean
+  `Error: Stdin input could not be decoded as UTF-8 ... / Hint: Ensure
+  the upstream shell pipes UTF-8 bytes ...` (or
+  `Hint: Save the file as UTF-8 ...`) instead of the generic "internal
+  error: ... This is a bug." block (KDCLI-169).
+
 ## [2.6.3] — 2026-04-30
 
 This release focuses on Windows shakedown: encoding crashes, primer
