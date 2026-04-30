@@ -4,6 +4,71 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.3] — 2026-04-30
+
+This release focuses on Windows shakedown: encoding crashes, primer
+locking, mojibake in help text, the git-bash path-conversion gotcha,
+and a contributor-token field-resolver bug surfaced along the way.
+
+### Fixed
+- `/project/field list` and the `--type` / `--priority` / `--state` /
+  `--field` resolvers now work for tokens that lack project-administration
+  rights (e.g. contributor / bot accounts). When both the per-issue and
+  admin paths return no fields, kd raises a typed error pointing at
+  token permissions instead of failing the resolver silently. Surfaced
+  during the Windows shakedown but identity-class — the fix is
+  platform-agnostic (KDCLI-164).
+- Primer mutations (`/primer/note add`, `/primer/tag add`,
+  `/primer/article add`, plus all update/remove paths) now succeed on
+  Windows. Replaces the previous POSIX-only implementation that raised
+  `ConfigError("File locking is not available on this platform (POSIX
+  only).")` at the very first acquisition on Windows. Concurrent kd
+  processes still serialize on the `.kd/primer.yaml.lock` file on both
+  platforms (KDCLI-159).
+- Output containing characters outside cp1252 (`→`, `—`, `≤`) no longer
+  crashes with `UnicodeEncodeError` on Windows, and help/synopsis text
+  on the default Windows console no longer renders mojibake (`?` / `�`)
+  for en-dashes and similar. Both paths went through the same encoding
+  layer (KDCLI-158, KDCLI-161, KDCLI-156).
+- Unhandled exceptions in the CLI now render a one-line (encoding) or
+  one-paragraph (generic) friendly diagnostic on stderr and exit `1`
+  instead of dumping a raw Python traceback. The traceback is preserved
+  under `--debug` / `-D` / `-DD` / `-DDD` so developer workflows are
+  intact. Applies on every platform (KDCLI-162).
+- Operating guide and user guide now document the git-bash MSYS
+  path-conversion gotcha. `kd /primer show` from git-bash on Windows
+  arrives as `kd C:/Program Files/Git/primer show` because MSYS
+  rewrites the leading `/` before kd ever sees argv; recovery is the
+  recommended `alias kd='MSYS_NO_PATHCONV=1 kd'` in `~/.bashrc`,
+  `MSYS_NO_PATHCONV=1 kd …` per call, or the `kd //primer show`
+  double-slash form (KDCLI-163).
+
+### Added
+- `kd /system info -o yaml` now exposes the active connection slug as
+  a top-level `connection` key. Paste `kd /system info -o yaml` into
+  a bug report and the slug used to reach the instance is captured
+  without hand-typing — `-c <slug>` overrides flow through to the
+  field as well. The previous payload named the URL but never the
+  slug, so reports against multi-connection setups had to spell the
+  slug out by hand (KDCLI-160).
+- Git-bash MSYS path-conversion hint on Windows: when `kd <converted
+  path>` reaches argv as `C:/.../<known kd namespace>`, kd prints a
+  one-line stderr hint above the existing "Unknown command" failure
+  pointing at the recovery recipes (KDCLI-163).
+
+### Changed
+- Added `filelock>=3.12` as a direct runtime dependency. Normal
+  `kd-cli` end-user installs gain one new direct runtime package; the
+  dev wheel set is unaffected because dev tooling already resolved
+  `filelock` transitively. See
+  `docs/design/ADR-012-cross-platform-locking.md` (KDCLI-159).
+- Structured cache reports normalize file-path fields to POSIX form for
+  cross-platform stability. `path:` and `manifest_path:` fields inside the
+  YAML / JSON envelopes of `/cache refresh`, `/cache clear`, `/cache status`,
+  and `/cache search` now use `/` separators on Windows the same as on macOS
+  and Linux, so LLM consumers parsing the envelope see a platform-stable
+  shape (KDCLI-168).
+
 ## [2.6.2] — 2026-04-28
 
 ### Added
