@@ -4,6 +4,35 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.6.6] — 2026-05-01
+
+This release adds pinned issues as a first-class primer section
+alongside pinned tags and articles, and fills in the missing in-place
+`update` verb across the three reference-shaped sub-namespaces.
+
+### Added
+- `/primer/issue add|list|unpin` — pin upstream issues as the active
+  execution anchors a workspace is currently working on, parallel to
+  `/primer/tag` and `/primer/article`. `add` validates the ID against
+  the server (mirrors `/primer/tag add`); transient upstream faults
+  emit an `issue_validation_skipped` warning and pin anyway, unknown
+  IDs pin with an `issue_not_found` warning so you can declare intent
+  before the issue exists. `kd /cache refresh --primer-scope` now
+  hydrates pinned issues alongside pinned articles and tag-derived
+  queries; the empty-primer guard names all three pin commands
+  (KDCLI-175).
+- `/primer/tag update`, `/primer/article update`, `/primer/issue
+  update` — edit the `summary` on a pinned entry in place without
+  losing its position. `--summary` is required; pass an empty string
+  to clear it. Identifier changes still go through remove + add
+  (KDCLI-180).
+- Reference markers in primer prose: `tag:NAME`, `article:KDCLI-A-NN`,
+  and `issue:KDCLI-NN` markers in any `summary` or note body now
+  surface as derived `refs` metadata on `kd /primer show` output. URLs
+  and code paths are rejected by the marker grammar so
+  `https://host/tag:foo` produces zero refs rather than a partial
+  capture (KDCLI-175).
+
 ## [2.6.5] — 2026-04-30
 
 This release closes M011 by adding empty-project bootstrap support to
