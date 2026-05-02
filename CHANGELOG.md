@@ -4,6 +4,16 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.7.1] — 2026-05-02
+
+### Fixed
+- `kd /article search` now appends a brace-wrapping hint when YouTrack returns
+  the *"… isn't used for the tag field"* 400 caused by a bare colon-bearing
+  `tag:` literal (e.g. `tag: kind:proposal`). The upstream message stays
+  visible; kd points to the fix — `tag: {kind:proposal}` — and references
+  `kd --guide` §YouTrack Gotchas. Docs and `kd /article search --help` now
+  show the brace form (KDCLI-186).
+
 ## [2.7.0] — 2026-05-02
 
 This release adds server-backed full-text search for knowledge-base
