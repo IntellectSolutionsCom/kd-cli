@@ -4,6 +4,27 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.7.0] — 2026-05-02
+
+This release adds server-backed full-text search for knowledge-base
+articles. Until now `/article list --project P` was the only way to
+find articles without knowing their id; body and field queries
+required a manual scan. `kd /article search QUERY` closes that gap
+with relevance ranking.
+
+### Added
+- `kd /article search QUERY [--limit N] [--skip N]` and
+  `client.articles.search()` — server-backed article full-text search
+  via the YouTrack article query DSL (same syntax family as issue
+  search; supports `project: {…}`, `content:`, `summary:`, `tag:`,
+  `comments:`, etc., relevance-ranked by YouTrack). Output columns
+  match `/article list`. The upstream REST `query` parameter is
+  undocumented but supported on YouTrack cloud and on-prem 2023.2;
+  instances that reject it surface a specific capability error
+  rather than silently falling back to local substring matching, so
+  scripts cannot accidentally trade ranked server results for
+  unranked summary scans (KDCLI-183).
+
 ## [2.6.6] — 2026-05-01
 
 This release adds pinned issues as a first-class primer section
