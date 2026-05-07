@@ -4,6 +4,29 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.8.0] — 2026-05-07
+
+### Added
+- `kd /issue/link remove ID TYPE TARGET` and
+  `kd /issue/link remove ID --by-id LINK_ID` close the gap that left
+  operators in the YouTrack web UI to detach issues. `kd /issue/link list`
+  now surfaces link ids so the `--by-id` form is usable end-to-end.
+  Removal uses the documented `DELETE /api/issues/{id}/links/{linkID}/issues/{targetID}`
+  path, not the commands API (KDCLI-190).
+- `kd /article show` gains `--preview` (first 40 lines), `--body-lines N`,
+  and `--no-content` for previewing or skipping the body on long articles.
+  Truncation lives in the CLI layer; the structured envelope adds
+  `content_truncated`, `content_chars`, `content_lines`, and
+  `content_preview_lines` only when truncation applies; `--no-content`
+  drops `content` and adds `content_omitted: true`. Default behaviour is
+  unchanged — full body, no new keys (KDCLI-188).
+
+### Fixed
+- `kd /article tree` now renders the full tree at every branching factor.
+  The table/markdown renderer previously expanded only the first sibling's
+  subtree at each level; structured output (`-o yaml` / `-o json`) was
+  unaffected (KDCLI-189).
+
 ## [2.7.1] — 2026-05-02
 
 ### Fixed
