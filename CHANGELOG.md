@@ -4,6 +4,15 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.8.1] — 2026-05-08
+
+### Fixed
+- `kd /issue show` and `kd /issue/comment list` no longer crash on
+  tombstoned (soft-deleted) comments. Structured output surfaces
+  `text: null, deleted: true` for tombstoned rows so operators can
+  see the row exists without fabricating content. Article comments
+  share the same fix (KDCLI-192).
+
 ## [2.8.0] — 2026-05-07
 
 ### Added
