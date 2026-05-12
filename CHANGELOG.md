@@ -4,6 +4,38 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.9.0] — 2026-05-12
+
+### Changed
+- Tag-name resolution now refuses on visible-global name collisions
+  instead of silently picking one tag id. The legacy last-one-wins
+  behaviour is gone across the entire `/tag` namespace: `/tag show`,
+  `/tag delete`, `/tag rename`, `/tag create`, `/tag add`, `/tag remove`,
+  `/tag issues`, `/tag articles`, and `/tag entities` all surface a
+  structured candidate list (id, name, owner) when two visible tags
+  share a display name. Each candidate is rendered with a retry shape
+  appropriate to the command (`kd /tag show <id>`, `kd /tag rename
+  <id> <new-name>`, etc.); `/tag create` lists candidates without a
+  retry block and suggests `kd /tag show <id>` for inspection. The
+  tag-id form (`NN-NN`) is a passthrough on every command that accepts
+  a tag identifier — use it to disambiguate (KDCLI-198: KDCLI-199 +
+  KDCLI-200).
+- `/tag issues` and `/tag entities` pre-validate every tag argument
+  before composing the YouTrack query or fanning out across kinds, so
+  ambiguity refusal is a hard precondition rather than a partial-
+  success row. The multi-tag / project slow path on `/tag issues`
+  previously bypassed the resolver entirely; that gap is closed.
+- Tag-id form scope is narrower on `/tag issues` and `/tag entities`
+  than on the other tag commands because YouTrack's `tag:` query DSL
+  predicate is name-keyed (no id-keyed predicate exists). `/tag issues`
+  accepts id form on the fast path only (single tag, no `--project`);
+  any combination with `--project` or multiple `--tag` arguments
+  refuses with guidance. `/tag entities` accepts id form when the
+  issue half stays on the fast path or when only `--kind article` is
+  requested; combining id form with `--project` or multiple tags AND
+  the issue kind refuses. The other tag commands (`show`, `delete`,
+  `rename`, `add`, `remove`, `articles`) are unaffected.
+
 ## [2.8.1] — 2026-05-08
 
 ### Fixed
