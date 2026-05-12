@@ -4,6 +4,22 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.9.1] — 2026-05-12
+
+### Fixed
+- `/tag add` and `/tag remove` no longer report "Article <id> not found"
+  when the upstream denies tag mutation. A 403 on
+  `DELETE /<articles|issues>/{id}/tags/{tag_id}` now surfaces as
+  "Tag remove denied for <article|issue> {id} (tag {tag_id})" with a
+  hint about tag ownership / `updateableBy` sharing; the 403 on
+  `POST /<articles|issues>/{id}/tags` surfaces as "Tag attach denied
+  for <article|issue> {id}". A 404 on the DELETE path now names the
+  tag attachment ("Tag {tag_id} was not found on <article|issue>
+  {id}") instead of falling through to the catch-all article/issue
+  404 rule. The resolver pre-flight (KDCLI-198) already covers
+  parent-missing and not-attached cases at the SDK boundary; this
+  closes the residual HTTP-status surface (KDCLI-197).
+
 ## [2.9.0] — 2026-05-12
 
 ### Changed
