@@ -6,164 +6,58 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [2.10.0] — 2026-11-01
 
-This release fixes calls that looked right but did something else. A few
+Calls that looked right but did something else now do what they say. Some
 calls that used to run now stop with an error that names the form that
-works; each is described below.
+works; they are listed under "Now refused".
 
 ### Fixed
-- Boolean command options and `--quiet` now read a `true` or `false` written
-  after them. `kd /project configure KEY --time-tracking false` turns time
-  tracking off, as `--help` and `kd --reference` show, instead of failing
-  with "Entity with id false not found". `--all false` and `--confirm false`
-  no longer mean true. A bare `--flag` still means true, and `--flag=false`
-  works as before. To pass the word `true` or `false` as an argument right
-  after such an option, move the option after the text, or end the options
-  with `--` (everything after `--` is an argument) (KDCLI-153).
+- `--flag true` and `--flag false` set a boolean option:
+  `--time-tracking false` turns time tracking off, and `--all false` or
+  `--confirm false` no longer mean true.
 - Arguments keep the order you typed them in when an option sits between
-  them: `kd /tag add PROJ-1 --quiet kind:x` tags PROJ-1, where it used to
-  read `kind:x` as the issue id. `kd /primer/note add --quiet a=b` saves
-  "a=b" instead of failing with "Unknown option: --a" (KDCLI-153).
-- On `/issue create`, `/issue/comment add`, `/article create`,
-  `/article/comment add`, `/article search`, `/project create`,
-  `/primer/note add` and `/primer/note update`, a word right after a
-  switch such as `--quiet`, other than `true` or `false`, is refused when an
-  argument comes before the switch:
-  `kd /issue/comment add PROJ-1 hello --quiet off` fails with
-  `Unexpected argument 'off' after --quiet: a switch takes no word after
-  it. Put --quiet after the last argument, or write --quiet=false. Usage:
-  kd /issue/comment add ID "Text"` and writes nothing. Earlier versions
-  read the word as the issue id, note number or project key, or wrote it
-  at the front of the text. Put `--quiet` after the last argument. Adding
-  `--help` to such a line reports the same error; drop the stray word to
-  see the help (KDCLI-261).
-- `/project configure`, `/project delete`, `/user delete`, `/tag delete`,
-  `/article push` and `/system/config set` reject an extra argument instead
-  of acting on the first one: `kd /tag delete my tag --confirm` now fails
-  with `Unexpected argument 'tag'. Usage: kd /tag delete TAG_NAME_OR_ID
-  --confirm` instead of deleting the tag "my". Quote a `/system/config set`
-  value that contains spaces (KDCLI-153).
-- `/primer/note remove`, `/primer/article remove`, `/primer/tag remove` and
-  `/primer/issue remove` refuse a target given together with `--all`, so
-  `--all no` no longer clears every entry (KDCLI-153).
-- `kd --quiet /issue show ID` now works: `--quiet` before the command path
-  no longer swallows the path (KDCLI-153).
-- `kd --brief ID /issue show`, with a command's option before the command
-  name and an argument between them, used to run. It now stops with
-  `Option --brief belongs to /issue show; put it after the command name:
-  kd /issue show ... --brief`. Put command options after the command name
-  (KDCLI-153).
-- `kd /issue/link add CHILD subtask-of PARENT` and
-  `kd /issue/link add PARENT parent-for CHILD` now warn when CHILD already had
-  another parent. YouTrack keeps one parent per issue, so the add moves CHILD
-  away from its old parent; the warning names that parent:
-  `warning [link_replaced]: CHILD was subtask-of OLD; YouTrack keeps one parent
-  per issue, so this add replaced it.` It prints on stderr, also with
-  `--quiet`, and appears under `warnings` with `-o yaml` or `-o json`. The add
-  still succeeds, and its `ok:` line and exit code are unchanged (KDCLI-202).
-- `kd /issue/link add PARENT parent-for "CHILD-1,CHILD-2"`, with several
-  children joined by commas in one argument, used to be sent to YouTrack as
-  written. It now fails before anything is sent, because kd first reads the
-  child's links. Add one child per call (KDCLI-202).
-- `kd /issue/link remove` typed from the wrong direction now names the command
-  that works. If `kd /issue/link list X` shows `Depend INWARD Y`,
-  `kd /issue/link remove X required-for Y` still fails and removes nothing, and
-  now adds `Hint: X has a depends-on link to Y; remove it with:
-  kd /issue/link remove X depends-on Y`. This works for subtask, dependency and
-  duplicate links, from either issue. `kd /issue/link remove --help` lists which
-  TYPE removes each kind of row in `kd /issue/link list` (KDCLI-202).
-- `kd /article push` no longer fails with "file contains more than one
-  kd-meta block" when the file shows a `<!-- kd-meta` line below its top
-  marker, for example in a code block that documents the marker. Only the
-  marker at the top of the file identifies the article; a marker line that
-  comes after other content is ordinary content and is pushed as written.
-  The same text now works with `kd /article update --content`, and
-  `--append` and `--prepend` now work on an article whose body contains
-  such a line; the block you pass to `--append` or `--prepend` still may
-  not contain one. A second marker block directly below the top one, with
-  nothing but blank lines between them, is still refused, now with "a
-  second kd-meta block directly follows the top marker; keep one"
-  (KDCLI-181).
-- A push that finds its article by slug, because the file has no
-  `upstream-id` (as with every file you push with `--no-marker-write`) or
-  its `upstream-id` no longer exists, now also finds an article whose body
-  shows such a marker line, instead of creating a second copy. When several
-  articles share the slug and at least one of their bodies shows such a
-  line, push now stops with the existing "Multiple articles … have slug"
-  error, which lists their ids, instead of updating one of the others or
-  creating another copy. To resolve it, put the right article's
-  `upstream-id` in the file's marker (KDCLI-181).
-- An id that kd puts in a request address, such as an issue, article or
-  project id, is now refused when it contains a line break, tab or other
-  control character: `Error: Invalid id '…': it contains a control
-  character (line break, tab or similar). Pass one id per argument.`, with
-  the value shown escaped, and exit code 1. The check runs before the
-  request that would carry the id. Before, such an id, for example several
-  ids passed as one argument from an unquoted variable in zsh, ended in an
-  "Internal error … This is a bug" report. `/primer/issue add` and
-  `/tag entities --project` stop with the same error and write nothing.
-  Programs that use kd as a Python library get kd's own usage error
-  instead of an exception from the HTTP library. Commands that only store
-  an id locally, such as `/primer/article add`, or pass it inside a search
-  query, such as `/tag entities --kind issue --project`, do not check it
-  yet (KDCLI-228).
-- `kd /issue create --help` and `kd /article create --help`, and the same
-  commands in `kd --reference`, no longer describe `--project` as "Filter by
-  project key". They now read "Project the issue is created in (key, e.g.
-  FB)" and "Project the article is created in (key, e.g. FB)". The flag
-  works as before; the list commands keep "Filter by project key"
-  (KDCLI-223).
-- The `ok:` line of a write no longer leaves out a value that contains a
-  space. `kd /issue update FB-42 --state "Won't fix" --quiet` now prints
-  `ok: FB-42 updated state="Won't fix"` instead of `ok: FB-42 updated`, and
-  `kd /issue/attachment add FB-42 "6. file name.pdf" b.pdf --quiet` prints
-  `attachments="6. file name.pdf",b.pdf`. A value prints bare unless that
-  would lose it; otherwise it prints as a double-quoted, backslash-escaped
-  string. Three things you may have relied on change:
-  - A name with a comma in a list is now quoted:
-    `attachments="a,b.pdf",c.pdf` (was `attachments=a,b.pdf,c.pdf`).
-  - A value that starts with `"`, or holds a character the Python running
-    kd cannot print (a carriage return, tab, line separator, invisible
-    formatting mark, or an emoji newer than that Python), is quoted with
-    that character escaped instead of being printed raw.
-  - `awk -F= '/state=/ {print $2}'`, which the docs used to show, can now
-    return part of another field. Read values with `-o json | jq -r .state`;
-    the `ok:` line stays the place for the id (`$2`) and the action (`$3`).
+  them.
+- `/issue/link add` warns when it replaces an issue's parent; YouTrack keeps
+  one parent per issue.
+- `/issue/link remove` typed from the wrong side names the command that
+  works.
+- `/article push`, `update --content`, `--append` and `--prepend` accept a
+  `<!-- kd-meta` line below the top marker as ordinary content.
+- The `ok:` line keeps values that contain spaces, quoted when needed:
+  `state="Won't fix"`.
+- `--quiet` silences every write.
+- A primer note read from a file no longer keeps the file's final line
+  break.
+- An id containing a tab or a line break gives a usage error, not an
+  internal error.
+- `create --help` describes `--project` as the project the item is created
+  in.
 
-  Empty values are still left out, and `-o json` and `-o yaml` are
-  unchanged (KDCLI-224).
-- `kd /issue move --help` and `kd --reference` now show the line kd prints,
-  `ok: <ID> moved`. They no longer promise a `project=` token, which the
-  line never carried (KDCLI-224).
-- `kd /primer/note add @note.txt` and `kd /primer/note update 2 @note.txt` no
-  longer store the line break that ends the file. A note written with a
-  heredoc, `echo` or an editor is saved as the line you wrote, not as a
-  quoted block that ends in a blank line. The same applies to text from
-  stdin (`-`, `@-`) and to inline text: one final `\n` or `\r\n` is dropped,
-  and the rest is kept as written. Issue descriptions, comments and article
-  bodies read from a file are stored exactly as before (KDCLI-229).
-- A note that is empty once its final line break is dropped, such as a file
-  holding only a line break, is now refused with "Note text cannot be empty"
-  instead of being saved as a blank note (KDCLI-229).
-- `--quiet` now works on every write. Writes that print an `ok:` line still
-  print only that line. Writes that have no `ok:` line used to ignore
-  `--quiet` and print their full output; now they print nothing. These are
-  `/tag add`, the `/primer` add, update and remove commands, `/primer init`,
-  `kd init`, `/system/config set` and `/system restore`. Warnings still go
-  to stderr, and the exit code is unchanged. Without `--quiet`, and with
-  `-o json` or `-o yaml`, they print what they printed before. Reads,
-  including `/cache` and attachment downloads, still ignore `--quiet`
-  (KDCLI-229).
+### Now refused (these used to run)
+- A word right after a switch when an argument comes before it, as in
+  `comment add ID hello --quiet off`. Put `--quiet` last.
+- A command option before the command name, as in
+  `kd --brief ID /issue show`. Put it after the name.
+- An extra argument on `/project configure`, `/project delete`,
+  `/user delete`, `/tag delete`, `/article push` and `/system/config set`.
+  Quote values with spaces.
+- A target together with `--all` on the `/primer/... remove` commands.
+- Several children joined with commas in one `parent-for` call. Add one
+  child per call.
+- A push that matches several articles by slug. Put the right `upstream-id`
+  in the file's marker.
+- A primer note that is only a line break.
+
+### Changed output
+- In the `ok:` line, a value that holds a comma, starts with `"` or contains
+  a control character is quoted and escaped. Read values with
+  `-o json | jq -r .<key>`; the `ok:` line stays the place for the id (`$2`)
+  and the action (`$3`).
 
 ### Documentation
-- If kd stops at start-up with `No module named 'encodings'` or
-  `AssertionError: SRE module mismatch`, the shell or program that runs it is
-  setting `PYTHONHOME` or `PYTHONPATH` for another Python. On Windows this is
-  often a virtual environment created by uv older than 0.11.9; recreating it
-  with a current uv fixes it. `kd --guide` now has a section, "When kd Will
-  Not Start From Another Python", that shows how to check for that and how to
-  clear both variables for one call: `env -u PYTHONHOME -u PYTHONPATH kd …` in
-  bash, zsh or Git Bash, with the PowerShell and cmd forms beside it
-  (KDCLI-207).
+- `kd --guide` has a new section, "When kd Will Not Start From Another
+  Python". It covers `PYTHONHOME` or `PYTHONPATH` inherited from another
+  Python; on Windows this is often a uv virtual environment older than
+  0.11.9.
 
 ## [2.9.1] — 2026-05-12
 
