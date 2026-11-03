@@ -4,6 +4,16 @@ All notable changes to kd-cli are recorded here. The project follows [Semantic V
 
 ## [Unreleased]
 
+## [2.11.1] — 2026-11-03
+
+A maintenance release after a review of kd's code and tests. Commands,
+output and the Python SDK behave as in 2.11.0, with one fix.
+
+### Fixed
+- `kd /cache clear` and `kd /cache clear --all` remove a link (a symlink
+  or a Windows junction) inside `.kd/cache/` without following it, so
+  files outside the cache are no longer deleted.
+
 ## [2.11.0] — 2026-11-02
 
 kd works from what an install ships, and calls that gave a silently wrong
